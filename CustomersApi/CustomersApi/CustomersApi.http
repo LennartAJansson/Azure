@@ -1,0 +1,27 @@
+@host = http://localhost:5080
+
+### Hälsokoll (ingen databas)
+GET {{host}}/healthz
+
+### Vem är jag i databasen?
+GET {{host}}/db/whoami
+
+### Löstes Key Vault-referensen?
+GET {{host}}/config
+
+### Lista kunder
+GET {{host}}/customers
+
+### Skapa kund
+POST {{host}}/customers
+Content-Type: application/json
+
+{
+  "name": "Kalle Anka",
+  "email": "kalle@example.com",
+  "phone": "070-1234567",
+  "city": "Ankeborg"
+}
+
+### Sök kund
+GET {{host}}/customers?search=Anka

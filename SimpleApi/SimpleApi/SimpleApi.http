@@ -1,0 +1,7 @@
+@host = http://localhost:5080
+
+### Info (hälsning, miljö, webbapp)
+GET {{host}}/info
+
+### Väderprognos
+GET {{host}}/weatherforecast
