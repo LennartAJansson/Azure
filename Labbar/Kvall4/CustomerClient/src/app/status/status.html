@@ -1,0 +1,8 @@
+<h2>Status</h2>
+<p>API-adress (från config.json): <code>{{ config.apiBaseUrl() || '(tom)' }}</code></p>
+<button type="button" (click)="check()">Testa API</button>
+<p>/healthz: <strong>{{ health() }}</strong></p>
+@if (who() !== null) {
+  <p>/db/whoami:</p>
+  <pre>{{ who() | json }}</pre>
+}

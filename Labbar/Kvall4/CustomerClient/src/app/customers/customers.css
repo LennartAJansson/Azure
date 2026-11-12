@@ -1,0 +1,6 @@
+form { display: flex; gap: .5rem; flex-wrap: wrap; margin-bottom: 1rem; }
+input { padding: .4rem .6rem; }
+button { padding: .4rem .8rem; cursor: pointer; }
+table { border-collapse: collapse; width: 100%; max-width: 40rem; }
+th, td { text-align: left; padding: .4rem .6rem; border-bottom: 1px solid #ddd; }
+.error { color: #b00020; }

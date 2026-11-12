@@ -1,0 +1,16 @@
+{
+  "navigationFallback": {
+    "rewrite": "/index.html",
+    "exclude": ["/*.{css,js,json,ico,png,svg,webp,woff2}"]
+  },
+  "globalHeaders": {
+    "X-Content-Type-Options": "nosniff",
+    "Cache-Control": "no-cache"
+  },
+  "routes": [
+    {
+      "route": "/config.json",
+      "headers": { "Cache-Control": "no-store" }
+    }
+  ]
+}

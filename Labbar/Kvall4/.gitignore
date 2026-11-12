@@ -1,0 +1,13 @@
+# Bygg och IDE
+bin/
+obj/
+.vs/
+*.user
+publish/
+app.zip
+node_modules/
+dist/
+.angular/
+
+# Genereras av 00-start.ps1 (innehåller miljöns namn)
+lab-vars.ps1

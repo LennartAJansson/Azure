@@ -1,0 +1,53 @@
+<h2>Kunder</h2>
+
+@if (error()) {
+  <p class="error" role="alert">{{ error() }}</p>
+}
+
+<form (submit)="$event.preventDefault(); add()">
+  <input
+    type="text"
+    placeholder="Namn"
+    aria-label="Namn"
+    [value]="name()"
+    (input)="name.set($any($event.target).value)"
+  />
+  <input
+    type="email"
+    placeholder="E-post (valfritt)"
+    aria-label="E-post"
+    [value]="email()"
+    (input)="email.set($any($event.target).value)"
+  />
+  <input
+    type="text"
+    placeholder="Ort (valfritt)"
+    aria-label="Ort"
+    [value]="city()"
+    (input)="city.set($any($event.target).value)"
+  />
+  <button type="submit" [disabled]="!name().trim()">Lägg till</button>
+  <button type="button" (click)="reload()">Uppdatera</button>
+</form>
+
+@if (loading()) {
+  <p>Hämtar…</p>
+} @else if (customers().length === 0 && !error()) {
+  <p>Inga kunder ännu.</p>
+} @else {
+  <table>
+    <thead>
+      <tr><th>Namn</th><th>E-post</th><th>Ort</th><th></th></tr>
+    </thead>
+    <tbody>
+      @for (c of customers(); track c.id) {
+        <tr>
+          <td>{{ c.name }}</td>
+          <td>{{ c.email }}</td>
+          <td>{{ c.city }}</td>
+          <td><button type="button" (click)="remove(c)">Ta bort</button></td>
+        </tr>
+      }
+    </tbody>
+  </table>
+}

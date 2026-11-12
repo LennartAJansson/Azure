@@ -1,0 +1,10 @@
+<header>
+  <h1>{{ title }}</h1>
+  <nav>
+    <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Kunder</a>
+    <a routerLink="/status" routerLinkActive="active">Status</a>
+  </nav>
+</header>
+<main>
+  <router-outlet />
+</main>

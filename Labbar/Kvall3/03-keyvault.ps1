@@ -23,8 +23,17 @@ switch ($Step) {
         az keyvault secret set --vault-name $kv --name ExternalApiKey --value "demo-nyckel-$(Get-Random)" --query id -o tsv
     }
     "reference" {
-        $ref = "Demo__ExternalApiKey=@Microsoft.KeyVault(VaultName=${kv};SecretName=ExternalApiKey)"
-        az webapp config appsettings set --resource-group $rg --name $app --settings $ref -o none
+        # OBS: az är en .cmd-fil på Windows. Parenteser och semikolon i värdet tolkas av cmd.exe
+        # ("-o was unexpected at this time"). Därför skickas inställningen via en JSON-fil.
+        $ref = "@Microsoft.KeyVault(VaultName=${kv};SecretName=ExternalApiKey)"
+        $file = Join-Path ([IO.Path]::GetTempPath()) "kv-ref-settings.json"
+        @{ "Demo__ExternalApiKey" = $ref } | ConvertTo-Json | Set-Content -Path $file -Encoding utf8
+        try {
+            az webapp config appsettings set --resource-group $rg --name $app --settings "@$file" -o none
+        }
+        finally {
+            Remove-Item $file -ErrorAction SilentlyContinue
+        }
         Write-Host "App Setting satt. Titta på https://$appHost/config" -ForegroundColor Green
     }
     "role" {

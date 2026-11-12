@@ -13,7 +13,7 @@
 param(
     [string]$Location = "swedencentral",
     [string]$ResourceGroup = "rg-azure-kvall3",
-    [bool]$UseFreeOffer = $true
+    [bool]$UseFreeOffer = $false
 )
 
 $ErrorActionPreference = "Stop"
@@ -24,7 +24,25 @@ $account = az account show -o json | ConvertFrom-Json
 Write-Host "Prenumeration: $($account.name)" -ForegroundColor Cyan
 
 # Vem är du? Du blir Entra-admin på SQL-servern och Secrets Officer i Key Vault.
-$me = az ad signed-in-user show -o json | ConvertFrom-Json
+# Först Microsoft Graph. På en icke-managerad dator kan Conditional Access blockera Graph,
+# då läser vi UPN och objekt-ID ur den vanliga Azure-token (claims "upn" och "oid").
+$me = $null
+$PSNativeCommandUseErrorActionPreference = $false
+$graphJson = az ad signed-in-user show -o json 2>$null
+$graphOk = ($LASTEXITCODE -eq 0)
+$PSNativeCommandUseErrorActionPreference = $true
+if ($graphOk -and $graphJson) {
+    $me = $graphJson | ConvertFrom-Json
+}
+else {
+    Write-Host "Graph ej tillgängligt - läser identiteten ur Azure-token." -ForegroundColor Yellow
+    $token = az account get-access-token --resource https://management.azure.com/ --query accessToken -o tsv
+    $payload = $token.Split('.')[1].Replace('-', '+').Replace('_', '/')
+    $payload = $payload.PadRight($payload.Length + (4 - $payload.Length % 4) % 4, '=')
+    $claims = [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String($payload)) | ConvertFrom-Json
+    $upn = if ($claims.upn) { $claims.upn } elseif ($claims.unique_name) { $claims.unique_name } else { $claims.preferred_username }
+    $me = [pscustomobject]@{ userPrincipalName = $upn; id = $claims.oid }
+}
 Write-Host "Inloggad som:  $($me.userPrincipalName)" -ForegroundColor Cyan
 
 # Din publika IP - SQL-brandväggen släpper bara in den (och Azure-tjänster).

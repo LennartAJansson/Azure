@@ -1,0 +1,6 @@
+:host { display: block; font-family: system-ui, sans-serif; max-width: 52rem; margin: 0 auto; padding: 1rem; }
+header { display: flex; align-items: baseline; gap: 2rem; border-bottom: 2px solid #0078d4; margin-bottom: 1rem; }
+h1 { margin: 0; color: #0078d4; }
+nav { display: flex; gap: 1rem; }
+nav a { text-decoration: none; color: #333; }
+nav a.active { font-weight: 700; color: #0078d4; }

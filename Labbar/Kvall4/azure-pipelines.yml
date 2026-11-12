@@ -1,0 +1,50 @@
+# Visas bara i kursen, körs inte. Varje stage motsvarar ett skript.
+trigger:
+  - main
+
+pool:
+  vmImage: ubuntu-latest        # eller: name: Default  (self-hosted agent)
+
+stages:
+  - stage: Build                # 01-build.ps1
+    jobs:
+      - job: client
+        steps:
+          - task: NodeTool@0
+            inputs: { versionSpec: '22.x' }
+          - script: npm ci
+            workingDirectory: CustomerClient
+          - script: npm test -- --watch=false
+            workingDirectory: CustomerClient
+          - script: npm run build
+            workingDirectory: CustomerClient
+          - publish: CustomerClient/dist/CustomerClient/browser
+            artifact: client
+
+  - stage: DeployApi            # 03-deploy-api.ps1
+    dependsOn: Build
+    jobs:
+      - job: api
+        steps:
+          - script: dotnet build CustomersApi/CustomersApi/CustomersApi.csproj -c Release
+          - script: dotnet publish CustomersApi/CustomersApi/CustomersApi.csproj -c Release --no-build -o $(Build.ArtifactStagingDirectory)/api
+          # Deploy från pipeline kräver en service connection (workload identity federation):
+          # - task: AzureWebApp@1
+          #   inputs:
+          #     azureSubscription: 'min-service-connection'
+          #     appName: $(webAppName)
+          #     package: $(Build.ArtifactStagingDirectory)/api
+
+  - stage: DeployClient         # 02-deploy-client.ps1
+    dependsOn: DeployApi
+    jobs:
+      - job: client
+        steps:
+          - download: current
+            artifact: client
+          - task: AzureStaticWebApp@0
+            inputs:
+              app_location: $(Pipeline.Workspace)/client
+              skip_app_build: true
+              skip_api_build: true
+              azure_static_web_apps_api_token: $(swaDeploymentToken)   # secret variable
