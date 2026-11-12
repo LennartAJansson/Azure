@@ -16,7 +16,7 @@ ALTER ROLE db_datareader ADD MEMBER [$app];
 ALTER ROLE db_datawriter ADD MEMBER [$app];
 "@
 
-Write-Host "Databas: $sqlFqdn / $db" -ForegroundColor Cyan
+Write-Host "Databas: $sqlFqdn/$db" -ForegroundColor Cyan
 Write-Host $sql -ForegroundColor Yellow
 
 if (Get-Command sqlcmd -ErrorAction SilentlyContinue) {

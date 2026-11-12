@@ -23,8 +23,13 @@ if (-not $token) { throw "Tomt deployment token." }
 
 # Token via miljövariabel så att den inte syns i processlistan.
 $env:SWA_CLI_DEPLOYMENT_TOKEN = $token
+# Hoppa över installationsskript när npx hämtar CLI:t (samma 'node saknas i cmd'-problem som vid npm ci).
+$env:npm_config_ignore_scripts = "true"
 try { npx --yes @azure/static-web-apps-cli deploy $dist --env production }
-finally { Remove-Item Env:\SWA_CLI_DEPLOYMENT_TOKEN -ErrorAction SilentlyContinue }
+finally {
+    Remove-Item Env:\SWA_CLI_DEPLOYMENT_TOKEN -ErrorAction SilentlyContinue
+    Remove-Item Env:\npm_config_ignore_scripts -ErrorAction SilentlyContinue
+}
 
 Write-Host ""
 Write-Host "https://$swaHost" -ForegroundColor Green
